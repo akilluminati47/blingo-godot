@@ -12,10 +12,7 @@ func _ready() -> void:
 func _show_splash() -> void:
 	splash_screen = load("res://scenes/splash.tscn").instantiate()
 	add_child(splash_screen)
-	if splash_screen.has_signal("splash_dismissed"):
-		splash_screen.splash_dismissed.connect(_on_splash_dismissed)
-	else:
-		SignalBus.splash_dismissed.connect(_on_splash_dismissed)
+	SignalBus.splash_dismissed.connect(_on_splash_dismissed)
 
 
 func _on_splash_dismissed() -> void:
@@ -43,9 +40,8 @@ func _start_gameplay() -> void:
 	GameState.state = GameState.State.PLAYING
 	print("Game started")
 	
-	# 3D world
+	# World
 	var world_env := WorldEnvironment.new()
-	world_env.name = "WorldEnvironment"
 	var env := Environment.new()
 	env.background_mode = Environment.BG_SKY
 	var sky := Sky.new()
@@ -70,16 +66,6 @@ func _start_gameplay() -> void:
 	terrain_gen.name = "TerrainGenerator"
 	add_child(terrain_gen)
 	
-	var town := TownBuilder.new()
-	town.name = "TownBuilder"
-	town.terrain_generator = terrain_gen
-	add_child(town)
-	
-	var chunk_mgr := ChunkManager.new()
-	chunk_mgr.name = "ChunkManager"
-	chunk_mgr.terrain_generator = terrain_gen
-	add_child(chunk_mgr)
-	
 	# Player
 	var player := PlayerController.new()
 	player.name = "Player"
@@ -92,24 +78,15 @@ func _start_gameplay() -> void:
 	cam.position = Vector3(0, 1.8, 7)
 	player.add_child(cam)
 	
+	# Blob
 	var blob := BlobBuilder.new()
 	blob.name = "Blob"
 	blob.body_color = Color.ORANGE
 	player.add_child(blob)
 	
-	var ws := WeaponSystem.new()
-	ws.name = "WeaponSystem"
-	ws.camera = cam
-	player.add_child(ws)
-	
-	var spawner := ZombieSpawner.new()
-	spawner.name = "ZombieSpawner"
-	add_child(spawner)
-	
-	chunk_mgr.set_target(player)
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	GameState.time = 0.0
-	print("  World ready")
+	print("  World ready — WASD to move, mouse to look")
 
 
 func _input(event: InputEvent) -> void:
