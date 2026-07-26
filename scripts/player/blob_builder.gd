@@ -222,7 +222,13 @@ func _build_brain_mesh() -> Node3D:
 
 func _collect_skin_meshes() -> void:
 	skin_list.clear()
-	wob.traverse(_add_to_skin_list.bind(wob))
+	_collect_meshes_recursive(wob)
+
+
+func _collect_meshes_recursive(node: Node) -> void:
+	_add_to_skin_list(node, wob)
+	for child in node.get_children():
+		_collect_meshes_recursive(child)
 
 
 func _add_to_skin_list(node: Node, root: Node3D) -> void:
@@ -301,34 +307,3 @@ func flash_green(duration: float = 0.08) -> void:
 	for item in skin_list:
 		var mat: StandardMaterial3D = item.mat
 		mat.albedo_color = Color.GREEN
-
-
-func _box(w: float, h: float, d: float, color: Color) -> MeshInstance3D:
-	var mesh := BoxMesh.new()
-	mesh.size = Vector3(w, h, d)
-	
-	var mat := StandardMaterial3D.new()
-	mat.albedo_color = color
-	mat.roughness = 0.7
-	
-	var mi := MeshInstance3D.new()
-	mi.mesh = mesh
-	mi.set_surface_override_material(0, mat)
-	return mi
-
-
-func _ball(r: float, color: Color) -> MeshInstance3D:
-	var mesh := SphereMesh.new()
-	mesh.radius = r
-	mesh.height = r * 2
-	mesh.radial_segments = 16
-	mesh.rings = 12
-	
-	var mat := StandardMaterial3D.new()
-	mat.albedo_color = color
-	mat.roughness = 0.5
-	
-	var mi := MeshInstance3D.new()
-	mi.mesh = mesh
-	mi.set_surface_override_material(0, mat)
-	return mi

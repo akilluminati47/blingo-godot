@@ -30,7 +30,6 @@ var boss4_defeated: bool = false
 var prestige_run: bool = false
 var all_cousins_recruited: bool = false
 var cleanup_active: bool = false
-var clear_target: int = 0
 var quota_total: int = 0
 var companions: Array = []
 

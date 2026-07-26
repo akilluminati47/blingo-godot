@@ -323,7 +323,8 @@ func _build_fbi_blob(face_color: int, big: bool) -> BlobBuilder:
 	var blob := BlobBuilder.new()
 	blob.body_color = Color.hex(FBI_BLACK)
 	blob.is_zombie = true
-	blob.scale = 1.4 if big else 1.0
+	blob.scale_value = 1.4 if big else 1.0
+	blob.scale = Vector3.ONE * blob.scale_value
 
 	return blob
 

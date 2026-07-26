@@ -77,7 +77,7 @@ func spawn_boss1() -> void:
 	var blob := BlobBuilder.new()
 	blob.body_color = Color.hex(BOSS_PURPLE)
 	blob.is_zombie = true
-	blob.scale = 2.7
+	blob.scale = Vector3.ONE * 2.7
 
 	add_child(blob)
 	blob.global_position = Vector3(bp.x, ground_height(bp.x, bp.z), bp.z)
@@ -113,7 +113,7 @@ func spawn_boss2() -> void:
 	var blob := BlobBuilder.new()
 	blob.body_color = Color.hex(BOSS_CRIMSON)
 	blob.is_zombie = true
-	blob.scale = 2.7
+	blob.scale = Vector3.ONE * 2.7
 
 	add_child(blob)
 	blob.global_position = Vector3(bp.x, ground_height(bp.x, bp.z), bp.z)
@@ -150,7 +150,7 @@ func spawn_boss3() -> void:
 	var blob := BlobBuilder.new()
 	blob.body_color = Color.hex(BOSS_INFECTED)
 	blob.is_zombie = true
-	blob.scale = sc
+	blob.scale = Vector3.ONE * sc
 
 	add_child(blob)
 	blob.global_position = Vector3(bp.x, ground_height(bp.x, bp.z), bp.z)
@@ -187,7 +187,7 @@ func spawn_boss4() -> void:
 	var blob := BlobBuilder.new()
 	blob.body_color = Color.hex(BOSS_ROTTEN)
 	blob.is_zombie = true
-	blob.scale = sc
+	blob.scale = Vector3.ONE * sc
 
 	add_child(blob)
 	blob.global_position = Vector3(bp.x, ground_height(bp.x, bp.z), bp.z)
@@ -577,7 +577,7 @@ static func get_bank_pos() -> Vector3:
 
 
 static func get_fountain_pos() -> Vector3:
-	return _fountain_pos
+	return _fountain
 
 
 static func get_church_pos() -> Vector3:

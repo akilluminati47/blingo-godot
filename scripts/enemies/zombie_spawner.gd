@@ -188,7 +188,7 @@ func _spawn_at(x: float, z: float, power_scale: float, mode: ZombieData.SpawnMod
 	if zombie:
 		add_child(zombie)
 		zombies.append(zombie)
-		zombie.zombie_killed.connect(_on_zombie_killed.bind(zombie))
+		zombie.zombie_killed.connect(_on_zombie_killed)
 		zombie_spawned.emit(zombie)
 	return zombie
 
