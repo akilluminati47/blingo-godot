@@ -121,8 +121,11 @@ jobs:
         run: |
           mkdir -p build/ios
           Godot.app/Contents/MacOS/Godot --headless --export-release "iOS" build/ios
-          xcodebuild -project build/ios/BLINGO.xcodeproj -scheme BLINGO -sdk iphoneos -configuration Release -derivedDataPath build/ios/DerivedData CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO archive -archivePath build/ios/BLINGO.xcarchive
-          xcodebuild -exportArchive -archivePath build/ios/BLINGO.xcarchive -exportOptionsPlist ios-export.plist -exportPath build/ios CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
+          xcodebuild -project build/ios/BLINGO.xcodeproj -scheme BLINGO -sdk iphoneos -configuration Release -derivedDataPath build/ios/DerivedData CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO clean build
+          mkdir -p Payload
+          cp -r build/ios/DerivedData/Build/Products/Release-iphoneos/BLINGO.app Payload/
+          zip -r -y BLINGO.ipa Payload/
+          mv BLINGO.ipa build/ios/
         continue-on-error: true
 
       - uses: actions/upload-artifact@v4
