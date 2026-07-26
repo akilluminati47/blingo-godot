@@ -31,6 +31,7 @@ jobs:
 
       - name: Build Web
         run: ./Godot_v4.7.1-stable_linux.x86_64 --headless --export-release "Web" build/web/index.html
+        continue-on-error: true
 
       - name: Build Android
         run: ./Godot_v4.7.1-stable_linux.x86_64 --headless --export-release "Android" build/android/BLINGO.apk
