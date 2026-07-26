@@ -17,6 +17,32 @@ var clear_target: int = 0
 var celebrate_t: float = 0.0
 var selected_cousin: int = 0
 
+# Boss state
+var boss_spawned: bool = false
+var boss_defeated: bool = false
+var boss2_spawned: bool = false
+var boss2_defeated: bool = false
+var boss3_spawned: bool = false
+var boss3_defeated: bool = false
+var boss4_spawned: bool = false
+var boss4_defeated: bool = false
+
+var prestige_run: bool = false
+var all_cousins_recruited: bool = false
+var cleanup_active: bool = false
+var clear_target: int = 0
+var quota_total: int = 0
+var companions: Array = []
+
+func boss_phase() -> bool:
+	return boss_spawned or boss2_spawned or boss3_spawned or boss4_spawned
+
+func reset_boss_state() -> void:
+	boss_spawned = false; boss_defeated = false
+	boss2_spawned = false; boss2_defeated = false
+	boss3_spawned = false; boss3_defeated = false
+	boss4_spawned = false; boss4_defeated = false
+
 # Prestige (persisted across runs)
 var blocks_secured: Dictionary = {}
 var best_streak: int = 0
