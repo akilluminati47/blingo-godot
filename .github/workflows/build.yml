@@ -133,7 +133,10 @@ jobs:
           path: web
 
       - name: Deploy to Cloudflare Pages
-        run: npx wrangler pages deploy web --project-name blingo-godot --branch main
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}-godot
+        run: |
+          cd web
+          zip -r ../deploy.zip .
+          curl -s -X POST \
+            "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/blingo-godot/deployments" \
+            -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
+            -F "file=@../deploy.zip"-godot
