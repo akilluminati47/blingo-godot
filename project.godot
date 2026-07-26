@@ -14,6 +14,7 @@ run/main_scene="res://scenes/main.tscn"
 [autoload]
 
 GameState="*res://scripts/autoload/game_state.gd"
+SignalBus="*res://scripts/autoload/signal_bus.gd"
 
 [rendering]
 

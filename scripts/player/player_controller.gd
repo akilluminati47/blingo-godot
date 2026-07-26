@@ -16,11 +16,25 @@ var cam_pitch: float = -0.24
 var yaw: float = 0.0
 
 @onready var camera: Camera3D = $Camera3D
+@onready var weapon_system: WeaponSystem = $WeaponSystem
 
 
 func _ready() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	position.y = 1.0
+
+	if weapon_system:
+		weapon_system.camera = camera
+	else:
+		_setup_weapon_system()
+
+
+func _setup_weapon_system() -> void:
+	var ws := WeaponSystem.new()
+	ws.name = "WeaponSystem"
+	ws.camera = camera
+	add_child(ws)
+	weapon_system = ws
 
 
 func _input(event: InputEvent) -> void:
