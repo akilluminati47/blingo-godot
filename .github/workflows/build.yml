@@ -147,4 +147,4 @@ jobs:
           rm -rf web
           git add .
           git commit -m "Deploy Godot web build"
-          git push -f origin web-deploy-godot
+          git push -f origin web-deploy
