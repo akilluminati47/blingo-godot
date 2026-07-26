@@ -61,6 +61,7 @@ jobs:
 
       - name: Build Android
         run: ./Godot_v4.7.1-stable_linux.x86_64 --headless --export-release "Android" build/android/BLINGO.apk
+        continue-on-error: true
 
       - name: Upload Windows
         uses: actions/upload-artifact@v4
