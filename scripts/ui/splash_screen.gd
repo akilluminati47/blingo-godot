@@ -28,7 +28,7 @@ var _name_label: Label
 var _chevron_label: Label
 var _face_rect: ColorRect
 var _stars_rect: ColorRect
-var _ready := false
+var _is_ready := false
 var _dismissed := false
 
 func _ready() -> void:
@@ -37,7 +37,7 @@ func _ready() -> void:
 	_setup_blob_display()
 	_setup_tag()
 	_setup_hint()
-	_ready = true
+	_is_ready = true
 	_show_cousin(0)
 	$StarsRect.position = Vector2.ZERO
 	$StarsRect.size = get_viewport_rect().size
@@ -112,7 +112,7 @@ func _on_resize() -> void:
 	_hint_label.size = Vector2(400, 36)
 
 func _process(dt: float) -> void:
-	if not _ready or _dismissed:
+	if not _is_ready or _dismissed:
 		return
 	_t += dt
 
