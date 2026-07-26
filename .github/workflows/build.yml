@@ -5,14 +5,60 @@ on:
     branches: [main, master]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
-  export-all:
+  desktop:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup JDK 17
-        uses: actions/setup-java@v4
+      - name: Download Godot
+        run: |
+          wget -q https://github.com/godotengine/godot/releases/download/4.7.1-stable/Godot_v4.7.1-stable_linux.x86_64.zip
+          unzip -q Godot_v4.7.1-stable_linux.x86_64.zip
+          chmod +x Godot_v4.7.1-stable_linux.x86_64
+
+      - name: Download Export Templates
+        run: |
+          wget -q https://github.com/godotengine/godot/releases/download/4.7.1-stable/Godot_v4.7.1-stable_export_templates.tpz
+          mkdir -p ~/.local/share/godot/export_templates/4.7.1.stable
+          unzip -o -j -q Godot_v4.7.1-stable_export_templates.tpz -d ~/.local/share/godot/export_templates/4.7.1.stable
+
+      - name: Create Build Dirs
+        run: mkdir -p build/windows build/linux build/web
+
+      - name: Build Windows
+        run: ./Godot_v4.7.1-stable_linux.x86_64 --headless --export-release "Windows Desktop" build/windows/BLINGO.exe
+
+      - name: Build Linux
+        run: ./Godot_v4.7.1-stable_linux.x86_64 --headless --export-release "Linux/X11" build/linux/BLINGO.x86_64
+
+      - name: Build Web
+        run: ./Godot_v4.7.1-stable_linux.x86_64 --headless --export-release "Web" build/web/index.html
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BLINGO-Windows
+          path: build/windows/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BLINGO-Linux
+          path: build/linux/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BLINGO-Web
+          path: build/web/
+
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -21,12 +67,10 @@ jobs:
         run: |
           ANDROID_SDK_ROOT=${{ runner.tool_cache }}/android-sdk
           echo "ANDROID_HOME=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
-          # Download cmdline-tools
           wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
           mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
           unzip -q commandlinetools-linux-11076708_latest.zip -d $ANDROID_SDK_ROOT/cmdline-tools
           mv $ANDROID_SDK_ROOT/cmdline-tools/cmdline-tools $ANDROID_SDK_ROOT/cmdline-tools/latest
-          # Accept licenses and install SDK components
           yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses
           $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager "platform-tools" "build-tools;34.0.0" "platforms;android-34" "ndk;23.2.8568313"
 
@@ -46,56 +90,64 @@ jobs:
           mkdir -p ~/.local/share/godot/export_templates/4.7.1.stable
           unzip -o -j -q Godot_v4.7.1-stable_export_templates.tpz -d ~/.local/share/godot/export_templates/4.7.1.stable
 
-      - name: Create Build Dirs
-        run: mkdir -p build/windows build/linux build/web build/android
-
-      - name: Build Windows
-        run: ./Godot_v4.7.1-stable_linux.x86_64 --headless --export-release "Windows Desktop" build/windows/BLINGO.exe
-
-      - name: Build Linux
-        run: ./Godot_v4.7.1-stable_linux.x86_64 --headless --export-release "Linux/X11" build/linux/BLINGO.x86_64
-
-      - name: Build Web
-        run: ./Godot_v4.7.1-stable_linux.x86_64 --headless --export-release "Web" build/web/index.html
-        continue-on-error: true
-
       - name: Build Android
-        run: ./Godot_v4.7.1-stable_linux.x86_64 --headless --export-release "Android" build/android/BLINGO.apk
-        continue-on-error: true
+        run: |
+          mkdir -p build/android
+          ./Godot_v4.7.1-stable_linux.x86_64 --headless --export-release "Android" build/android/BLINGO.apk
 
-      - name: Upload Windows
-        uses: actions/upload-artifact@v4
-        with:
-          name: BLINGO-Windows
-          path: build/windows/
-
-      - name: Upload Linux
-        uses: actions/upload-artifact@v4
-        with:
-          name: BLINGO-Linux
-          path: build/linux/
-
-      - name: Upload Web
-        uses: actions/upload-artifact@v4
-        with:
-          name: BLINGO-Web
-          path: build/web/
-
-      - name: Upload Android
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: BLINGO-Android
           path: build/android/
 
+  ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Godot
+        run: |
+          curl -L -o godot.zip https://github.com/godotengine/godot/releases/download/4.7.1-stable/Godot_v4.7.1-stable_macos.universal.zip
+          unzip -q godot.zip
+          chmod +x Godot.app/Contents/MacOS/Godot
+
+      - name: Download Export Templates
+        run: |
+          curl -L -o templates.tpz https://github.com/godotengine/godot/releases/download/4.7.1-stable/Godot_v4.7.1-stable_export_templates.tpz
+          mkdir -p ~/Library/Application\ Support/Godot/export_templates/4.7.1.stable
+          unzip -o -j -q templates.tpz -d ~/Library/Application\ Support/Godot/export_templates/4.7.1.stable
+
+      - name: Build iOS
+        run: |
+          mkdir -p build/ios
+          Godot.app/Contents/MacOS/Godot --headless --export-release "iOS" build/ios/BLINGO.xcodeproj
+          cd build/ios
+          xcodebuild -project BLINGO.xcodeproj -scheme BLINGO -sdk iphoneos -configuration Release -derivedDataPath build archive -archivePath BLINGO.xcarchive
+          xcodebuild -exportArchive -archivePath BLINGO.xcarchive -exportOptionsPlist ../../ios-export.plist -exportPath .
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BLINGO-iOS
+          path: build/ios/*.ipa
+
+  release:
+    needs: [desktop, android, ios]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         with:
           tag_name: v${{ github.run_number }}
           name: Godot Build ${{ github.run_number }}
           files: |
-            build/windows/BLINGO.exe
-            build/linux/BLINGO.x86_64
-            build/android/BLINGO.apk
+            artifacts/BLINGO-Windows/BLINGO.exe
+            artifacts/BLINGO-Linux/BLINGO.x86_64
+            artifacts/BLINGO-Android/BLINGO.apk
+            artifacts/BLINGO-iOS/*.ipa
           draft: false
           prerelease: true
