@@ -116,6 +116,7 @@ jobs:
           curl -L -o templates.tpz https://github.com/godotengine/godot/releases/download/4.7.1-stable/Godot_v4.7.1-stable_export_templates.tpz
           mkdir -p ~/Library/Application\ Support/Godot/export_templates/4.7.1.stable
           unzip -o -j -q templates.tpz -d ~/Library/Application\ Support/Godot/export_templates/4.7.1.stable
+          ls -la ~/Library/Application\ Support/Godot/export_templates/4.7.1.stable/ | grep ios
 
       - name: Export Xcode Project
         run: |
