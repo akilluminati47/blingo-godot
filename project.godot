@@ -14,6 +14,8 @@ config/name="BLINGO"
 config/version="0.1.0"
 config/description="An infinite-map, squad zombie shooter — six immune cousin blobs, four bosses, cross-platform multiplayer."
 
+run/main_scene="res://scenes/main.tscn"
+
 [rendering]
 
 renderer/rendering_method="forward_plus"
