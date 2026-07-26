@@ -38,14 +38,14 @@ func _setup_weapon_system() -> void:
 
 
 func _input(event: InputEvent) -> void:
-	if event is InputEventMouseMotion and GameState.state == GameState.GameState.PLAYING:
+	if event is InputEventMouseMotion and GameState.state == GameState.State.PLAYING:
 		cam_yaw -= event.relative.x * mouse_sensitivity
 		cam_pitch -= event.relative.y * mouse_sensitivity
 		cam_pitch = clampf(cam_pitch, -PI / 2.2, PI / 3.0)
 
 
 func _process(delta: float) -> void:
-	if GameState.state != GameState.GameState.PLAYING:
+	if GameState.state != GameState.State.PLAYING:
 		return
 	
 	GameState.update_clock(delta)
@@ -99,7 +99,7 @@ func _process(delta: float) -> void:
 
 
 func _on_pause_toggled() -> void:
-	if GameState.state == GameState.GameState.PAUSED:
+	if GameState.state == GameState.State.PAUSED:
 		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
-	elif GameState.state == GameState.GameState.PLAYING:
+	elif GameState.state == GameState.State.PLAYING:
 		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)

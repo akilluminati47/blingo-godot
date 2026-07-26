@@ -43,7 +43,7 @@ func _on_start_game() -> void:
 
 
 func start_game() -> void:
-	GameState.state = GameState.GameState.PLAYING
+	GameState.state = GameState.State.PLAYING
 	print("Game started")
 	
 	# Terrain
@@ -128,9 +128,9 @@ func start_game() -> void:
 
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("pause"):
-		if GameState.state == GameState.GameState.PLAYING:
-			GameState.state = GameState.GameState.PAUSED
+		if GameState.state == GameState.State.PLAYING:
+			GameState.state = GameState.State.PAUSED
 			Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
-		elif GameState.state == GameState.GameState.PAUSED:
-			GameState.state = GameState.GameState.PLAYING
+		elif GameState.state == GameState.State.PAUSED:
+			GameState.state = GameState.State.PLAYING
 			Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)

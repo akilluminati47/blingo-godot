@@ -62,7 +62,7 @@ func ground_height(x: float, z: float) -> float:
 func maybe_spawn_boss1() -> void:
 	if GameState.boss_spawned or GameState.boss_defeated:
 		return
-	if GameState.state != GameState.GameStateEnum.PLAYING:
+	if GameState.state != GameState.State.PLAYING:
 		return
 	if not GameState.all_cousins_recruited:
 		return

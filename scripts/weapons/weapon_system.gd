@@ -39,7 +39,7 @@ func _ready() -> void:
 	equip_weapon("fists")
 
 func _process(delta: float) -> void:
-	if GameState.state != GameState.GameState.PLAYING:
+	if GameState.state != GameState.State.PLAYING:
 		return
 
 	shoot_cooldown = maxf(0.0, shoot_cooldown - delta)

@@ -3,9 +3,9 @@ extends Node
 # GameState autoload — global game state, singleton accessible from anywhere
 # Mirrors the 'game' object from the original JavaScript BLINGO
 
-enum GameStateEnum { MENU, PLAYING, PAUSED, DEAD }
+enum State { MENU, PLAYING, PAUSED, DEAD }
 
-var state: GameStateEnum = GameStateEnum.MENU
+var state: State = State.MENU
 var time: float = 0.0
 var kills: int = 0
 var crates_opened: int = 0
