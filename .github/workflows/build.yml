@@ -125,18 +125,25 @@ jobs:
     needs: desktop
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-    continue-on-error: true
+    permissions:
+      contents: write
     steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: web-deploy
+          path: deploy-target
+
       - uses: actions/download-artifact@v4
         with:
           name: BLINGO-Web
           path: web
 
-      - name: Deploy to Cloudflare Pages
+      - name: Push web build to web-deploy branch
         run: |
-          cd web
-          zip -r ../deploy.zip .
-          curl -s -X POST \
-            "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/blingo-godot/deployments" \
-            -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
-            -F "file=@../deploy.zip"-godot
+          cd deploy-target
+          git rm -rf . 2>/dev/null || true
+          cp -r ../web/* .
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add .
+          git diff --staged --quiet || (git commit -m "Deploy Godot web build" && git push origin web-deploy)-godot
