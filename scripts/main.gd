@@ -48,12 +48,14 @@ func _start_gameplay() -> void:
 	world_env.name = "WorldEnvironment"
 	var env := Environment.new()
 	env.background_mode = Environment.BG_SKY
+	var sky := Sky.new()
 	var sky_mat := ProceduralSkyMaterial.new()
 	sky_mat.sky_top_color = Color(0.2, 0.4, 0.8)
 	sky_mat.sky_horizon_color = Color(0.6, 0.7, 0.9)
-	env.sky = sky_mat
+	sky.sky_material = sky_mat
+	env.sky = sky
 	env.fog_enabled = true
-	env.fog_mode = Environment.FOG_DEPTH
+	env.fog_mode = Environment.FOG_MODE_DEPTH
 	env.fog_density = 0.004
 	world_env.environment = env
 	add_child(world_env)

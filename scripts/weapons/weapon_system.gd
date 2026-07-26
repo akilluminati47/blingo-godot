@@ -33,8 +33,6 @@ var melee_chop_timer: float = 0.0
 var melee_chop_hop: bool = false
 var gun_mesh: Node3D = null
 
-var _tracer_scene: PackedScene = preload("res://scripts/weapons/bullet_tracer.tscn") if ResourceLoader.exists("res://scripts/weapons/bullet_tracer.tscn") else null
-
 func _ready() -> void:
 	equip_weapon("fists")
 
