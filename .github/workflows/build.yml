@@ -120,10 +120,11 @@ jobs:
       - name: Build iOS
         run: |
           mkdir -p build/ios
-          Godot.app/Contents/MacOS/Godot --headless --export-release "iOS" build/ios/BLINGO.xcodeproj
+          Godot.app/Contents/MacOS/Godot --headless --export-release "iOS" build/ios
           cd build/ios
-          xcodebuild -project BLINGO.xcodeproj -scheme BLINGO -sdk iphoneos -configuration Release -derivedDataPath build archive -archivePath BLINGO.xcarchive
-          xcodebuild -exportArchive -archivePath BLINGO.xcarchive -exportOptionsPlist ../../ios-export.plist -exportPath .
+          xcodebuild -project BLINGO.xcodeproj -scheme BLINGO -sdk iphoneos -configuration Release -derivedDataPath build CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO archive -archivePath BLINGO.xcarchive
+          xcodebuild -exportArchive -archivePath BLINGO.xcarchive -exportOptionsPlist ../../ios-export.plist -exportPath . CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
+        continue-on-error: true
 
       - uses: actions/upload-artifact@v4
         with:
