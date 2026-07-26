@@ -1,26 +1,118 @@
 extends Node
 
+var splash_screen: Control
+var start_screen: Control
+
+
 func _ready() -> void:
 	print("BLINGO - Godot 4.7")
+	_show_splash()
+
+
+func _show_splash() -> void:
+	splash_screen = load("res://scenes/splash.tscn").instantiate()
+	add_child(splash_screen)
+	if splash_screen.has_signal("splash_dismissed"):
+		splash_screen.splash_dismissed.connect(_on_splash_dismissed)
+	else:
+		SignalBus.splash_dismissed.connect(_on_splash_dismissed)
+
+
+func _on_splash_dismissed() -> void:
+	if splash_screen:
+		splash_screen.queue_free()
+		splash_screen = null
+	_show_menu()
+
+
+func _show_menu() -> void:
+	start_screen = load("res://scenes/startscreen.tscn").instantiate()
+	add_child(start_screen)
+	SignalBus.single_player_pressed.connect(_on_start_game)
+	SignalBus.multiplayer_pressed.connect(_on_start_game)
+
+
+func _on_start_game() -> void:
+	if start_screen:
+		start_screen.queue_free()
+		start_screen = null
+	_start_gameplay()
+
+
+func _start_gameplay() -> void:
+	GameState.state = GameState.State.PLAYING
+	print("Game started")
 	
-	# Simple test: red background Control
-	var ctrl := Control.new()
-	ctrl.set_anchors_preset(Control.PRESET_FULL_RECT)
-	ctrl.mouse_filter = Control.MOUSE_FILTER_STOP
+	# 3D world
+	var world_env := WorldEnvironment.new()
+	world_env.name = "WorldEnvironment"
+	var env := Environment.new()
+	env.background_mode = Environment.BG_SKY
+	var sky_mat := ProceduralSkyMaterial.new()
+	sky_mat.sky_top_color = Color(0.2, 0.4, 0.8)
+	sky_mat.sky_horizon_color = Color(0.6, 0.7, 0.9)
+	env.sky = sky_mat
+	env.fog_enabled = true
+	env.fog_mode = Environment.FOG_DEPTH
+	env.fog_density = 0.004
+	world_env.environment = env
+	add_child(world_env)
 	
-	var bg := ColorRect.new()
-	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
-	bg.color = Color.ORANGE
-	ctrl.add_child(bg)
+	var sun := DirectionalLight3D.new()
+	sun.rotation = Vector3(-0.7, 0.5, 0)
+	sun.shadow_enabled = true
+	add_child(sun)
 	
-	var label := Label.new()
-	label.text = "BLINGO"
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.set_anchors_preset(Control.PRESET_FULL_RECT)
-	label.add_theme_font_size_override("font_size", 72)
-	label.add_theme_color_override("font_color", Color.WHITE)
-	ctrl.add_child(label)
+	# Terrain
+	var terrain_gen := TerrainGenerator.new()
+	terrain_gen.name = "TerrainGenerator"
+	add_child(terrain_gen)
 	
-	add_child(ctrl)
-	print("UI set up — you should see orange screen with BLINGO text")
+	var town := TownBuilder.new()
+	town.name = "TownBuilder"
+	town.terrain_generator = terrain_gen
+	add_child(town)
+	
+	var chunk_mgr := ChunkManager.new()
+	chunk_mgr.name = "ChunkManager"
+	chunk_mgr.terrain_generator = terrain_gen
+	add_child(chunk_mgr)
+	
+	# Player
+	var player := PlayerController.new()
+	player.name = "Player"
+	player.position = Vector3(0, 1, 0)
+	add_child(player)
+	
+	var cam := Camera3D.new()
+	cam.name = "Camera3D"
+	cam.fov = 75.0
+	cam.position = Vector3(0, 1.8, 7)
+	player.add_child(cam)
+	
+	var blob := BlobBuilder.new()
+	blob.name = "Blob"
+	blob.body_color = Color.ORANGE
+	player.add_child(blob)
+	
+	var ws := WeaponSystem.new()
+	ws.name = "WeaponSystem"
+	ws.camera = cam
+	player.add_child(ws)
+	
+	var spawner := ZombieSpawner.new()
+	spawner.name = "ZombieSpawner"
+	add_child(spawner)
+	
+	chunk_mgr.set_target(player)
+	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	GameState.time = 0.0
+	print("  World ready")
+
+
+func _input(event: InputEvent) -> void:
+	if event.is_action_pressed("pause"):
+		if GameState.state == GameState.State.PLAYING:
+			GameState.state = GameState.State.PAUSED
+		elif GameState.state == GameState.State.PAUSED:
+			GameState.state = GameState.State.PLAYING
