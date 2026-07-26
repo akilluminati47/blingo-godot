@@ -100,55 +100,8 @@ jobs:
           name: BLINGO-Android
           path: build/android/
 
-  ios:
-    runs-on: macos-15
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Download Godot
-        run: |
-          curl -L -o godot.zip https://github.com/godotengine/godot/releases/download/4.7.1-stable/Godot_v4.7.1-stable_macos.universal.zip
-          unzip -q godot.zip
-          chmod +x Godot.app/Contents/MacOS/Godot
-
-      - name: Download Export Templates
-        run: |
-          curl -L -o templates.tpz https://github.com/godotengine/godot/releases/download/4.7.1-stable/Godot_v4.7.1-stable_export_templates.tpz
-          mkdir -p ~/Library/Application\ Support/Godot/export_templates/4.7.1.stable
-          unzip -o -j -q templates.tpz -d ~/Library/Application\ Support/Godot/export_templates/4.7.1.stable
-          ls -la ~/Library/Application\ Support/Godot/export_templates/4.7.1.stable/ | grep ios
-
-      - name: Export Xcode Project
-        run: |
-          mkdir -p build/ios
-          Godot.app/Contents/MacOS/Godot --headless --export-release "iOS" build/ios
-
-      - name: Build Unsigned IPA
-        run: |
-          xcodebuild \
-            -project build/ios/BLINGO.xcodeproj \
-            -scheme BLINGO \
-            -sdk iphoneos \
-            -configuration Release \
-            CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY="" \
-            AD_HOC_CODE_SIGNING_ALLOWED=YES \
-            CONFIGURATION_BUILD_DIR="$RUNNER_TEMP/build" \
-            build
-          mkdir -p "$RUNNER_TEMP/Payload"
-          cp -r "$RUNNER_TEMP/build/BLINGO.app" "$RUNNER_TEMP/Payload/"
-          cd "$RUNNER_TEMP" && zip -r -y BLINGO.ipa Payload/
-          mkdir -p build/ios
-          cp "$RUNNER_TEMP/BLINGO.ipa" build/ios/
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: BLINGO-iOS
-          path: build/ios/*.ipa
-
   release:
-    needs: [desktop, android, ios]
+    needs: [desktop, android]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
     steps:
@@ -165,7 +118,6 @@ jobs:
             artifacts/BLINGO-Windows/BLINGO.exe
             artifacts/BLINGO-Linux/BLINGO.x86_64
             artifacts/BLINGO-Android/BLINGO.apk
-            artifacts/BLINGO-iOS/*.ipa
           draft: false
           prerelease: true
 
@@ -185,4 +137,4 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy web --project-name=blingo
+          command: pages deploy web --project-name=blingo-godot
