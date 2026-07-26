@@ -1,0 +1,88 @@
+name: Build All Platforms
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  windows:
+    runs-on: ubuntu-latest
+    container:
+      image: barichello/godot-ci:4.3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Windows
+        run: godot --headless --export-release "Windows Desktop" ../build/windows/BLINGO.exe
+      - name: Upload Windows
+        uses: actions/upload-artifact@v4
+        with:
+          name: BLINGO-Windows
+          path: build/windows/
+
+  linux:
+    runs-on: ubuntu-latest
+    container:
+      image: barichello/godot-ci:4.3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Linux
+        run: godot --headless --export-release "Linux/X11" ../build/linux/BLINGO.x86_64
+      - name: Upload Linux
+        uses: actions/upload-artifact@v4
+        with:
+          name: BLINGO-Linux
+          path: build/linux/
+
+  android:
+    runs-on: ubuntu-latest
+    container:
+      image: barichello/godot-ci:4.3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Android
+        run: godot --headless --export-release "Android" ../build/android/BLINGO.apk
+      - name: Upload Android
+        uses: actions/upload-artifact@v4
+        with:
+          name: BLINGO-Android
+          path: build/android/
+
+  web:
+    runs-on: ubuntu-latest
+    container:
+      image: barichello/godot-ci:4.3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Web
+        run: godot --headless --export-release "Web" ../build/web/index.html
+      - name: Upload Web
+        uses: actions/upload-artifact@v4
+        with:
+          name: BLINGO-Web
+          path: build/web/
+
+  release:
+    needs: [windows, linux, android, web]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/download-artifact@v4
+      - name: Package Windows
+        run: cd BLINGO-Windows && zip -r ../BLINGO-Windows.zip .
+      - name: Package Linux
+        run: cd BLINGO-Linux && zip -r ../BLINGO-Linux.zip .
+      - name: Package Web
+        run: cd BLINGO-Web && zip -r ../BLINGO-Web.zip .
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.run_number }}
+          name: Build ${{ github.run_number }}
+          files: |
+            BLINGO-Windows.zip
+            BLINGO-Linux.zip
+            BLINGO-Android/BLINGO.apk
+            BLINGO-Web.zip
+          draft: false
+          prerelease: true
